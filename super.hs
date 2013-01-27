@@ -16,10 +16,14 @@ data Vec n a where
 instance Show a => Show (Vec n a) where
   show a = "fromList " ++ (show $ vecToList a)
 
-data SuperOption n a where 
+data Stream a where
+  SCons :: a -> Stream a -> Stream a
+
+data SuperOption n a where
   None :: SuperOption n a
   Some :: Vec l a -> Between l One n -> SuperOption n a
   Lots :: Vec l a -> Less (Succ n) l -> SuperOption n a
+  All  :: Stream a -> SuperOption n a
 
 vecToList :: Vec n a -> [a]
 vecToList (Empty) = []
