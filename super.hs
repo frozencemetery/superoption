@@ -50,7 +50,7 @@ append :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
 append Empty y PZero = y
 append (Cons x xs) y (PSucc p) = Cons x (append xs y p)
 
-merge :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
+merge :: (Ord a) => Vec x a -> Vec y a -> Plus x y s -> Vec s a
 merge = undefined
 
 split :: Vec s a -> Plus x y s -> (Vec x a, Vec y a)
