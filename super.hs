@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 
-data Zero = Zero
-data Succ n = Succ n
+data Zero
+data Succ n
 type One = Succ Zero
 
 data Less x y where
