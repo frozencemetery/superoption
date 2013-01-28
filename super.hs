@@ -1,4 +1,5 @@
 {-# LANGUAGE GADTs #-}
+module Super where
 
 data Zero
 data Succ n
