@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs, RankNTypes #-}
+{-# LANGUAGE GADTs #-}
 
 data Zero = Zero
 data Succ n = Succ n
