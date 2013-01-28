@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs, RankNTypes #-}
 
-data Zero
-data Succ n
+data Zero = Zero
+data Succ n = Succ n
 type One = Succ Zero
 
 data Less x y where
@@ -49,6 +49,14 @@ insertionSort (Cons x xs) = insert x (insertionSort xs) where
 append :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
 append Empty y PZero = y
 append (Cons x xs) y (PSucc p) = Cons x (append xs y p)
+
+merge :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
+merge = undefined
+
+split :: Vec s a -> Plus x y s -> (Vec x a, Vec y a)
+split Empty PZero = (Empty, Empty)
+split (Cons x xs) PZero = (Empty, Cons x xs)
+split (Cons x xs) (PSucc p) = (Cons x y, z) where (y, z) = split xs p
 
 mergeSort :: (Ord a) => Vec l a -> Vec l a
 mergeSort Empty = Empty
