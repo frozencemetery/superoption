@@ -1,4 +1,4 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, RankNTypes #-}
 
 data Zero
 data Succ n
@@ -9,6 +9,10 @@ data Less x y where
   LT :: Less n (Succ n)
 data Between n x y where
   Between :: Less x n -> Less n y -> Between n x y
+
+data Plus x y z where
+  PZero :: Plus Zero y y
+  PSucc :: Plus x y z -> Plus (Succ x) y (Succ z)
 
 data Vec n a where
   Empty :: Vec Zero a
@@ -25,11 +29,11 @@ data SuperOption n a where
   Lots :: Vec l a -> Less (Succ n) l -> SuperOption n a
   All  :: Stream a -> SuperOption n a
 
+-------- --------
+
 vecToList :: Vec n a -> [a]
 vecToList (Empty) = []
 vecToList (Cons x xs) = x : vecToList xs
-
--------- --------
 
 insertionSort :: (Ord a) => Vec l a -> Vec l a
 insertionSort Empty = Empty
@@ -42,8 +46,9 @@ insertionSort (Cons x xs) = insert x (insertionSort xs) where
     else
       Cons x $ Cons y xs
 
-append Empty ys = ys
-append (Cons x xs) ys = undefined
+append :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
+append Empty y PZero = y
+append (Cons x xs) y (PSucc p) = Cons x (append xs y p)
 
 mergeSort :: (Ord a) => Vec l a -> Vec l a
 mergeSort Empty = Empty
