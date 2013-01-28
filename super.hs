@@ -1,7 +1,7 @@
 {-# LANGUAGE GADTs #-}
 
-data Zero
-data Succ n
+data Zero = Zero
+data Succ n = Succ n
 type One = Succ Zero
 
 data Less x y where
@@ -31,6 +31,10 @@ data SuperOption n a where
 
 -------- --------
 
+pSuccr :: Plus x y z -> Plus x (Succ y) (Succ z)
+pSuccr PZero = PZero
+pSuccr (PSucc p) = PSucc (pSuccr p)
+
 vecToList :: Vec n a -> [a]
 vecToList (Empty) = []
 vecToList (Cons x xs) = x : vecToList xs
@@ -51,7 +55,7 @@ append Empty y PZero = y
 append (Cons x xs) y (PSucc p) = Cons x (append xs y p)
 
 merge :: (Ord a) => Vec x a -> Vec y a -> Plus x y s -> Vec s a
-merge = undefined
+merge vx Empty PZero = vx
 
 split :: Vec s a -> Plus x y s -> (Vec x a, Vec y a)
 split Empty PZero = (Empty, Empty)
