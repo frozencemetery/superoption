@@ -1,9 +1,15 @@
-{-# LANGUAGE GADTs #-}
+{-# LANGUAGE GADTs, MultiParamTypeClasses, FlexibleInstances, FlexibleContexts #-}
 module Super where
 
 data Zero
 data Succ n
 type One = Succ Zero
+
+class Nat a
+instance Nat Zero
+instance Nat a => Nat (Succ a) 
+
+  
 
 data Less x y where
   LSame :: Less n n
@@ -12,12 +18,12 @@ data Between n x y where
   Between :: Less x n -> Less n y -> Between n x y
 
 data Plus x y z where
-  PZero :: Plus Zero y y
-  PSucc :: Plus x y z -> Plus (Succ x) y (Succ z)
+  PZero :: Nat y => Plus Zero y y
+  PSucc :: (Nat x, Nat y, Nat z) => Plus x y z -> Plus (Succ x) y (Succ z)
 
 data Vec n a where
   Empty :: Vec Zero a
-  Cons :: a -> Vec n a -> Vec (Succ n) a
+  Cons :: Nat n => a -> Vec n a -> Vec (Succ n) a
 instance Show a => Show (Vec n a) where
   show a = "fromList " ++ (show $ vecToList a)
 
@@ -51,8 +57,32 @@ append :: Vec x a -> Vec y a -> Plus x y s -> Vec s a
 append Empty y PZero = y
 append (Cons x xs) y (PSucc p) = Cons x (append xs y p)
 
-merge :: (Ord a) => Vec x a -> Vec y a -> Plus x y s -> Vec s a
-merge = undefined
+data VecSum x y a where 
+  VecSum :: Nat s => Plus x y s -> Vec s a -> VecSum x y a
+  
+class (Nat x, Nat y) => PlusSucc x y where
+  plusSucc :: Plus x y s -> Plus x (Succ y) (Succ s)
+instance PlusSucc Zero Zero where  
+  plusSucc PZero = PZero
+instance (PlusSucc x y) => PlusSucc (Succ x) y where  
+  plusSucc (PSucc x) = PSucc $ plusSucc x
+
+class (Nat x, Nat y) => Merge x y where
+  merge :: Ord a => Vec x a -> Vec y a -> VecSum x y a
+instance Merge Zero Zero where  
+  merge Empty Empty = VecSum PZero Empty
+instance (Merge a Zero) => Merge (Succ a) Zero where
+  merge (Cons v c) Empty = case merge c Empty of
+    VecSum prf vec -> VecSum (PSucc prf) (Cons v vec)
+instance (PlusSucc Zero a, Merge Zero a) => Merge Zero (Succ a) where
+  merge Empty (Cons v c) = case merge Empty c of
+    VecSum prf vec -> VecSum (plusSucc prf) (Cons v vec)    
+    
+instance (PlusSucc a a', Merge a (Succ a'), Merge (Succ a) a') => Merge (Succ a) (Succ a') where
+  merge ca@(Cons v c) ca'@(Cons v' c') | v <= v' = case merge c ca' of
+    VecSum prf vec -> VecSum (PSucc prf) (Cons v vec)
+  merge ca@(Cons v c) ca'@(Cons v' c') = case merge ca c' of
+    VecSum prf vec -> VecSum (plusSucc prf) (Cons v' vec)
 
 split :: Vec s a -> Plus x y s -> (Vec x a, Vec y a)
 split Empty PZero = (Empty, Empty)
