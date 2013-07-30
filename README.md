@@ -1,6 +1,7 @@
-*superoption*
+superoption
+===========
 
-/"We've done a bad thing."/
+*"We've done a bad thing."*
 
 Functional programmers are familiar with Option types (or `Maybe`s, in Haskell-speak).  This extends the idea of an option type from just `None` and `Sum` (in SML-speak) to `None`, `Some`, and `Lots`.  This allows programmers more fine-grained control over their types that can hold any number of values (ours are called "superoption").
 
